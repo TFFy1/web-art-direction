@@ -56,9 +56,14 @@ async function assertPublicUrl(raw) {
   return u.href;
 }
 
+// Small containers (512 MB on Railway's free plan) OOM-kill the renderer on heavy pages without these.
+const LOW_MEMORY_ARGS = ['--disable-dev-shm-usage', '--disable-gpu', '--renderer-process-limit=1', '--disable-extensions', '--disable-background-networking', '--js-flags=--max-old-space-size=256'];
+const MEASURE_BLOCKED = new Set(['image', 'media']);
+const CAPTURE_BLOCKED = new Set(['media']);
+
 let browserPromise = null;
 function browser() {
-  if (!browserPromise) browserPromise = chromium.launch({ headless: true }).catch((e) => { browserPromise = null; throw e; });
+  if (!browserPromise) browserPromise = chromium.launch({ headless: true, args: LOW_MEMORY_ARGS }).catch((e) => { browserPromise = null; throw e; });
   return browserPromise;
 }
 
@@ -67,10 +72,11 @@ export async function closeBrowser() {
   browserPromise = null;
 }
 
-async function guardedContext(options) {
+async function guardedContext(options, blockedTypes) {
   const ctx = await (await browser()).newContext({ locale: 'en-US', serviceWorkers: 'block', acceptDownloads: false, ...options });
   await ctx.route('**/*', async (route) => {
     try {
+      if (blockedTypes.has(route.request().resourceType())) return route.abort('blockedbyclient');
       const u = new URL(route.request().url());
       if (['data:', 'blob:'].includes(u.protocol)) return route.continue();
       if (!['http:', 'https:'].includes(u.protocol) || !(await hostIsPublic(u.hostname))) return route.abort('blockedbyclient');
@@ -206,7 +212,7 @@ function measureInPage() {
 
 export async function measure({ url }) {
   const safe = await assertPublicUrl(url);
-  const ctx = await guardedContext({ viewport: DESKTOP });
+  const ctx = await guardedContext({ viewport: DESKTOP }, MEASURE_BLOCKED);
   try {
     const page = await ctx.newPage();
     await open(page, safe);
@@ -236,7 +242,7 @@ async function captureOne({ url, category, name }, slug) {
   const notes = [];
   let pageHeight = null; let title = null; let finalUrl = safe;
 
-  const desk = await guardedContext({ viewport: DESKTOP });
+  const desk = await guardedContext({ viewport: DESKTOP }, CAPTURE_BLOCKED);
   try {
     const p = await desk.newPage();
     await open(p, safe);
@@ -251,7 +257,7 @@ async function captureOne({ url, category, name }, slug) {
   } catch (e) { notes.push(`desktop: ${e.message.split('\n')[0]}`); }
   finally { await desk.close(); }
 
-  const mob = await guardedContext({ viewport: MOBILE, deviceScaleFactor: 2, isMobile: true, hasTouch: true, userAgent: MOBILE_UA });
+  const mob = await guardedContext({ viewport: MOBILE, deviceScaleFactor: 2, isMobile: true, hasTouch: true, userAgent: MOBILE_UA }, CAPTURE_BLOCKED);
   try {
     const p = await mob.newPage();
     await open(p, safe);
