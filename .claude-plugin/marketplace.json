@@ -1,0 +1,11 @@
+{
+  "name": "web-art-direction",
+  "owner": { "name": "TFFy1" },
+  "plugins": [
+    {
+      "name": "web-art-direction",
+      "source": "./",
+      "description": "Art direction skill, component-library skill and design critic agent for websites that don't look generated."
+    }
+  ]
+}

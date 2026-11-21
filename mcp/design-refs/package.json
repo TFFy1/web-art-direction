@@ -1,0 +1,20 @@
+{
+  "name": "design-refs-mcp",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "MCP server (code mode) over a library of professional website references",
+  "main": "src/server.mjs",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "start": "node src/server.mjs",
+    "test": "node --test test/"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "1.32.2",
+    "playwright": "1.65.0",
+    "quickjs-emscripten": "0.32.0",
+    "sharp": "0.35.5",
+    "zod": "4.6.7"
+  }
+}
