@@ -79,7 +79,8 @@ function scan() {
   const phrases = ['elevate', 'unlock', 'seamless', 'supercharge', 'revolutioniz', 'empower', 'streamline', 'effortless', 'next-level', 'game-changer', "today's fast-paced", 'all-in-one platform', 'welcome back', 'cutting-edge', 'world-class', 'take your', 'to the next level'];
   for (const p of phrases) { const n = body.toLowerCase().split(p).length - 1; if (n) add('stock-phrase', `"${p}" x${n}`); }
   const dashes = (body.match(/—/g) || []).length; if (dashes > 2) add('em-dashes', `${dashes} em dashes in visible copy`);
-  const emoji = (body.match(/\p{Extended_Pictographic}/gu) || []).length; if (emoji) add('emoji-in-copy', `${emoji} emoji`);
+  // Emoji_Presentation (or a pictograph forced to emoji style) excludes text dingbats like ✓ ✔ ✕ that UIs use legitimately.
+  const emoji = (body.match(/\p{Emoji_Presentation}|\p{Extended_Pictographic}️/gu) || []).length; if (emoji) add('emoji-in-copy', `${emoji} emoji`);
   const families = new Set([...document.querySelectorAll('h1, h2, h3, p, a, button')].filter(visible).map((e) => getComputedStyle(e).fontFamily.split(',')[0].replace(/["']/g, '').trim()));
   if ([...families].some((f) => /^(Inter|DM Sans|Plus Jakarta Sans|Poppins|Montserrat|system-ui|-apple-system|Arial|Helvetica)$/i.test(f)) && families.size === 1) add('single-default-sans', [...families].join(', '));
   const h1 = document.querySelector('h1'); if (h1 && parseFloat(getComputedStyle(h1).fontSize) < 48) add('timid-display-size', `h1 is ${getComputedStyle(h1).fontSize}`);
