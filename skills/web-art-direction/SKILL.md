@@ -18,7 +18,8 @@ Load these files only when their step comes up:
 - [references/page.md](references/page.md): rhythm, type, color, imagery, copy, mobile
 - [references/slop.md](references/slop.md): the generic look, with counter-examples
 - [references/sections.md](references/sections.md): section types beyond the AI default, by job, with references
-- [references/motion.md](references/motion.md): scroll choreography, the signature scene, techniques and stacks
+- [references/motion.md](references/motion.md): scroll choreography, the signature scene told as a story, storyboarding, bridges between sections, techniques and stacks
+- [references/micro-interactions.md](references/micro-interactions.md): press, hover, drag and data-change details and fidgets (dashboards above all)
 
 ## Process
 
@@ -43,19 +44,19 @@ Read moves.md. Write down:
 - **Thesis:** one sentence naming the one idea this page owns.
 - **First screen:** one first-screen move and exactly what sits where, at what scale.
 - **Sections:** read sections.md. List the jobs the page must do, then pick one section per job, in order, with the container and rhythm of each. At least half come from outside the AI-default list; no two neighbors share a container; at most one card grid.
-- **Motion:** read motion.md. The signature scene (which section, how many vh pinned, what the scroll performs and why that is this product's verb), the behavior of every other section (no two neighbors alike), the texture, and the phone version.
-- **Type, color, imagery:** one type move, one color strategy with hex values, and the imagery plan with real sources.
+- **Motion:** read motion.md. The signature scene (which section, how many vh pinned, what the scroll performs and why that is this product's verb), its beat table (roles, scroll budget, the anchor object, the hold before the payoff), the two or three bridges between sections, the behavior of every other section (no two neighbors alike), the texture, and the phone version.
+- **Type, color, imagery:** one type move; one color strategy with hex values, naming the **break color**, where it comes from, what it means and the three to five places it appears (page.md, Break color); and the imagery plan with real sources.
 
 Put this contract in an HTML comment at the top of the page. If any line reads like a mood instead of a decision, it isn't decided yet.
 
 ### 5. Build
-Read page.md and slop.md, then build the contract with full commitment: real fonts, real copy, and real images at full HD or better (see page.md, Imagery). Use the `ui-libraries-no-ai-look` skill for interactive components. Fix the hero first, then the signature scene, then everything else.
+Read page.md and slop.md, then build the contract with full commitment: real fonts, real copy, and real images at full HD or better (see page.md, Imagery). Use the `ui-libraries-no-ai-look` skill for interactive components. Fix the hero first, then the signature scene (storyboard its beats as stills before wiring the rest, see motion.md), then everything else.
 
 ### 6. Shoot
 ```bash
 node <this-skill-dir>/scripts/shoot.mjs <page.html-or-url> <out-dir>
 ```
-This writes `desktop.jpg`, desktop slices, `mobile.jpg`, `mobile-full.jpg`, `filmstrip.jpg` (frames at even scroll steps from a fresh load, so scroll motion shows in stills) and `report.json`. The report has mechanical tells (eyebrows, gradient text, purple gradients, equal card rows, stock phrases, timid h1, low-resolution or over-compressed images, broken images, overflow) and a motion probe: counts of pinned, horizontal, scaled, rotated, clipped and scrubbed elements, with `no-scroll-motion`, `fade-up-only` and `no-signature-scene` tells. Fix every tell the brief doesn't justify before the critique. Look at the filmstrip yourself: if the signature scene doesn't read in it, it won't read for the visitor either.
+This writes `desktop.jpg`, desktop slices, `mobile.jpg`, `mobile-full.jpg`, `filmstrip.jpg` (frames at even scroll steps from a fresh load, so scroll motion shows in stills) and `report.json`. The report has mechanical tells (eyebrows, gradient text, purple gradients, equal card rows, stock phrases, timid h1, low-resolution or over-compressed images, broken images, overflow, `status-dot`, `static-controls`, `no-press-feedback`), a motion probe (counts of pinned, horizontal, scaled, rotated, clipped and scrubbed elements, with `no-scroll-motion`, `fade-up-only`, `no-signature-scene` and `dead-stretch` tells) and a palette probe (the share of saturated color and its hues, with `no-break-color`, `competing-accents` and `accent-flood`). Fix every tell the brief doesn't justify before the critique. Look at the filmstrip yourself: if the signature scene doesn't read in it, it won't read for the visitor either.
 
 ### 7. Critique loop
 Spawn the critic with a fresh context, never a fork of this conversation:
@@ -90,4 +91,9 @@ Usability beats expression here. Use moves only for the shell's identity (type, 
 Shell conventions people expect:
 - **Account at the bottom left.** The user's avatar, name and workspace sit at the foot of the sidebar and open the account menu (profile, billing, theme, sign out) upward. The top bar keeps search, the command menu and notifications.
 - **Resizable splits.** Every multi-pane layout (sidebar | main | detail or assistant panel) has drag handles so people size panes themselves: visible grip on hover, keyboard resizing (arrow keys on the focused handle), min and max sizes, double-click to reset, collapse to an edge, and sizes saved between visits. Use `react-resizable-panels` in React; in plain HTML, build the same behaviors.
-- Motion here is for feedback and continuity (numbers animating, panels sliding, list items settling), not scroll scenes.
+- **No status dots** ("● Online", "● Live"), in the shell or anywhere else (slop.md).
+
+What makes it feel made, not assembled:
+- **Micro-interactions and fidgets.** Read micro-interactions.md and put at least eight of its details across the components, each tied to a real action: press feedback, a sliding tab indicator, rolling numbers, new rows that flash, a lifting drag, a handle that answers, one or two fidgets from the product's own world. Frequent actions (command menu, keyboard navigation) stay instant. No scroll scenes.
+- **A break color.** Dashboards drift to all-grey. Give the shell a neutral base and one saturated break color with one meaning (action, selection, focus, the highlighted series), as page.md describes. Semantic colors stay quieter than the break.
+- **References:** `refs.search({ category: 'dashboard' })` holds real app UIs (live demos and public tools), graded like the rest; study the tier-A ones in step 3.

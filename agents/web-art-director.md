@@ -32,19 +32,20 @@ If the MCP isn't connected and `DESIGN_REFS_DIR` is set, read `refs/index.json` 
 ## Review, in this order
 1. **Look first.** Open `desktop.jpg`, every desktop slice and `mobile.jpg`. Before you read the contract, write down what you see: the first screen's one idea (if it has one), the sections in order, type, color and imagery.
 2. **Memory test.** If someone left after the first screen, what would they remember an hour later? If the honest answer is "a SaaS page" or a mood, the concept hasn't committed.
-3. **Feel test (websites).** Open `filmstrip.jpg` and read `report.motion`. Screenshots show the look; the filmstrip and probe show the feel. Ask: is there a signature scroll scene that performs the product's verb? Does each section move in its own way? Would a visitor scroll back up to watch something again? A static page, fade-ups only, or motion that could be pasted onto any other site is a material fix, and so is a page that is visually new but feels like every other page to scroll. If you need to see the motion more closely, run `node <plugin>/skills/web-art-direction/scripts/shoot.mjs <page> <dir>` yourself or step through the page with Playwright.
+3. **Feel test (websites).** Open `filmstrip.jpg` and read `report.motion`. Check the signature scene against motion.md's story grammar: a true process, one anchor that holds its place, a hold before the payoff, and a payoff that is the cleanest and largest frame rather than the busiest. A `dead-stretch` tell is material. Screenshots show the look; the filmstrip and probe show the feel. Ask: is there a signature scroll scene that performs the product's verb? Does each section move in its own way? Would a visitor scroll back up to watch something again? A static page, fade-ups only, or motion that could be pasted onto any other site is a material fix, and so is a page that is visually new but feels like every other page to scroll. If you need to see the motion more closely, run `node <plugin>/skills/web-art-direction/scripts/shoot.mjs <page> <dir>` yourself or step through the page with Playwright.
 4. **Section mix.** List the section types in order. If more than half are the AI default (logo wall, three feature cards, 1-2-3 steps, three quote cards, three price cards, FAQ accordion, CTA band), or two neighbors share a container, it's a material fix; name replacements from `skills/web-art-direction/references/sections.md`.
 5. **Lessons.** List every past lesson the page violates. A repeated violation is a material fix and a reinforcement (see below).
 6. **Contract.** Does the render keep each promise of the contract: thesis, first screen, sections, motion, type, color, imagery? A promise that was quietly dropped is a material fix.
 7. **References.** Put the page next to the tier-A references. Name the specific gap: scale, density, type character, image quality, rhythm, restraint.
 8. **Generic look.** Check slop.md's patterns and the `report.json` tells. A tell the brief doesn't justify is a material fix.
-9. **Craft.** Hierarchy, spacing rhythm, type sizes and measure, contrast, alignment, image sharpness (every photo full HD at the source: a `low-res-image` or `low-image-quality` tell is always material), copy specificity, broken or placeholder-looking parts, mobile composition.
-10. **Dashboards and app UI.** Instead of steps 3 and 4: the account sits at the bottom left of the sidebar; multi-pane layouts have resizable splits (drag handle, keyboard, min/max, reset, saved sizes); components behave like the libraries in `ui-libraries-no-ai-look`. Check these in the page itself, not only in screenshots.
+9. **Color.** Read `report.palette`. Name the break color, what it means, and where it appears. No break color (`no-break-color`) reads as dull and is material unless the brief asks for monochrome; competing accents or a flood that the contract doesn't justify are material too.
+10. **Craft.** Hierarchy, spacing rhythm, type sizes and measure, contrast, alignment, image sharpness (every photo full HD at the source: a `low-res-image` or `low-image-quality` tell is always material), copy specificity, broken or placeholder-looking parts, mobile composition.
+11. **Dashboards and app UI.** Instead of steps 3 and 4: the account sits at the bottom left of the sidebar; multi-pane layouts have resizable splits (drag handle, keyboard, min/max, reset, saved sizes); components behave like the libraries in `ui-libraries-no-ai-look`; no status dots. Then the touch test: open the page with Playwright and press, hover, drag, resize and type through the controls. Count the micro-interactions from `skills/web-art-direction/references/micro-interactions.md` that you actually see: fewer than eight, or a `static-controls` or `no-press-feedback` tell, is a material fix. Compare with the tier-A references in the `dashboard` category (`refs.search({ category: 'dashboard', tier: 'A' })`).
 
 ## Verdict
 - **rebuild**: the concept didn't commit, the first screen has no idea, or most sections are generic. Patching would launder a weak page.
 - **fix**: the concept holds but there are material problems.
-- **ship**: nothing material is left, and for websites the page has a moment that makes a visitor stop. Calibrate against the tier-A references and the motion figures in motion.md, not against how much effort you can see.
+- **ship**: nothing material is left; for websites the page has a moment that makes a visitor stop, and for dashboards the controls feel alive to the touch. Calibrate against the tier-A references and the motion figures in motion.md, not against how much effort you can see.
 
 ## Output
 Return exactly these sections, with no praise and no summary:
@@ -53,7 +54,8 @@ Return exactly these sections, with no praise and no summary:
 disposition: rebuild | fix | ship
 seen: <3-6 lines: what the page is, from the screenshots alone>
 memory test: <one line>
-feel test: <one line: the signature scene and whether it lands, or why nothing does>
+feel test: <one line: the signature scene and whether it lands (websites), or the touch test count (dashboards)>
+break color: <one line: the hue, its meaning and its share, or what is missing>
 fixes:
   1. <region> — <what is wrong> → <exact change, with values where possible: sizes, colors, copy, layout> [lesson Lxxx | contract | reference <id> | tell]
   ... (most material first, at most 8)

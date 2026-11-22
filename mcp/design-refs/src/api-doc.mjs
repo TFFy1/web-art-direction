@@ -14,7 +14,7 @@ type View = 'desktop' | 'full' | 'mobile' | 'shot';   // desktop = first screen 
 interface RefSummary { id: string; name: string; category: string; tier: Tier; moves: string[]; note: string; url: string; views: View[] }
 
 declare const refs: {
-  /** Filter the library. Categories: big-tech, saas, ecommerce, marketplace, enterprise, creative, dribbble, 21st, plus any added by capture. */
+  /** Filter the library. Categories: big-tech, saas, ecommerce, marketplace, enterprise, creative, dashboard (real app UIs), dribbble, 21st, plus any added by capture. */
   search(q?: { category?: string; tier?: Tier | Tier[]; moves?: string[]; match?: 'all' | 'any'; text?: string; limit?: number /* 1-40, default 12 */ }): Promise<{ total: number; results: RefSummary[] }>;
   /** Full entry: url, files per view, pageHeight, capturedAt, tier, moves, note. */
   get(id: string): Promise<object>;
@@ -35,7 +35,7 @@ declare const lessons: {
   /** Design lessons learned from past critiques, most reinforced first. Read these before designing. */
   list(q?: { scope?: string; text?: string }): Promise<{ id: string; rule: string; why: string; scope: string; evidence: string[]; seen: number }[]>;
   /** Record a general, reusable lesson from a critique. Near-duplicates reinforce the existing lesson instead of adding a new one. */
-  add(l: { rule: string; why: string; scope?: 'composition' | 'type' | 'color' | 'imagery' | 'copy' | 'motion' | 'components' | 'mobile' | 'process' | 'general'; evidence?: string }): Promise<{ status: 'added' | 'reinforced'; lesson: object }>;
+  add(l: { rule: string /* 10-300 chars */; why: string /* 10-500 chars */; scope?: 'composition' | 'type' | 'color' | 'imagery' | 'copy' | 'motion' | 'components' | 'mobile' | 'process' | 'general'; evidence?: string /* up to 300 chars */ }): Promise<{ status: 'added' | 'reinforced'; lesson: object }>;
 };
 \`\`\`
 

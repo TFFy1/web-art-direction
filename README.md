@@ -36,8 +36,11 @@ Ask for a website or landing page normally ("build a landing page for …"); the
 .claude-plugin/         plugin + marketplace manifests
 skills/web-art-direction/
   SKILL.md              the process
-  references/           moves.md (composition library), page.md (craft), slop.md (generic look)
+  references/           moves.md (composition library), page.md (craft, break color), slop.md (generic look),
+                        sections.md (section catalogue), motion.md (scroll scenes), micro-interactions.md (dashboard feel)
   scripts/shoot.mjs     screenshots + mechanical tells for review
+  scripts/motion.mjs    scroll-motion probe and filmstrip
+  scripts/palette.mjs   break-color probe (share of saturated color, hue clusters)
 skills/ui-libraries-no-ai-look/SKILL.md
 agents/web-art-director.md
 mcp/design-refs/        the MCP server (Node, QuickJS sandbox, Playwright), Dockerfile, Railway config, tests

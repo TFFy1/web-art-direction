@@ -9,6 +9,9 @@ const FRAME_WIDTH = 360;
 const MAX_TRACKED = 1800;
 const MIN_AREA = 1600;
 const NAV_MAX_HEIGHT = 160;
+// A pinned stretch this many steps long (~0.9 viewport) with nothing changing reads as a stalled scene.
+const DEAD_STEPS = 3;
+const MOVE_TOLERANCE = 3;
 
 function sample() {
   const vh = innerHeight, vw = innerWidth;
@@ -49,12 +52,22 @@ function rotation(t) {
   return Math.round(Math.atan2(b, a) * 180 / Math.PI);
 }
 
+// The 2x2 part of a transform: scale, rotate and skew, without the translation a pin may use.
+function linear(t) {
+  const m = /matrix(3d)?\(([^)]+)\)/.exec(t || '');
+  if (!m) return '1,0,0,1';
+  const v = m[2].split(',').map((x) => (+x).toFixed(3));
+  return (m[1] ? [v[0], v[1], v[4], v[5]] : v.slice(0, 4)).join(',');
+}
+
 function analyse(steps) {
   const tracks = new Map();
-  for (const st of steps) for (const [id, top, left, w, h, op, tf, clip, filter, pos, parent] of st.items) {
+  steps.forEach((st, si) => { for (const [id, top, left, w, h, op, tf, clip, filter, pos, parent] of st.items) {
     if (!tracks.has(id)) tracks.set(id, []);
-    tracks.get(id).push({ y: st.y, top, left, w, h, op, tf, clip, filter, pos, parent });
-  }
+    tracks.get(id).push({ si, y: st.y, top, left, w, h, op, tf, clip, filter, pos, parent });
+  } });
+  const active = new Array(steps.length).fill(0);
+  const pinnedStep = new Array(steps.length).fill(false);
   const kinds = { pinned: new Set(), horizontal: new Set(), scale: new Set(), rotate: new Set(), clip: new Set(), filter: new Set(), opacity: new Set(), parallax: new Set() };
   const scrubbed = new Set();
   for (const [id, t] of tracks) {
@@ -76,6 +89,11 @@ function analyse(steps) {
       if (Math.abs(b.op - a.op) >= 0.2) kinds.opacity.add(id);
       if (Math.abs(docShift) > 20 && Math.abs(docShift) < dy * 0.9) kinds.parallax.add(id);
       values.op.add(b.op); values.w.add(b.w); values.left.add(b.left);
+      if (b.si !== a.si + 1) continue;
+      const shift = b.top - a.top;
+      const moved = Math.abs(shift) > MOVE_TOLERANCE && Math.abs(shift + dy) > MOVE_TOLERANCE;
+      const morphed = Math.abs(b.op - a.op) >= 0.05 || a.clip !== b.clip || a.filter !== b.filter || linear(a.tf) !== linear(b.tf) || Math.abs(b.w - a.w) > 2 || Math.abs(b.left - a.left) > 2;
+      if (moved || morphed) active[b.si]++;
     }
     if (maxStill >= 600 && t[0].h > 200) kinds.pinned.add(id);
     if (values.op.size >= 4 || values.w.size >= 4 || values.left.size >= 4) scrubbed.add(id);
@@ -85,7 +103,17 @@ function analyse(steps) {
   for (const [id, t] of tracks) parentOf.set(id, t[0].parent);
   const roots = (set) => [...set].filter((id) => { let p = parentOf.get(id); while (p) { if (set.has(p)) return false; p = parentOf.get(p); } return true; }).length;
   const counts = Object.fromEntries(Object.entries(kinds).map(([k, v]) => [k, roots(v)]));
-  return { counts, scrubbed: roots(scrubbed), tracked: tracks.size };
+  for (const id of kinds.pinned) {
+    const t = tracks.get(id);
+    for (let i = 1; i < t.length; i++) if (t[i].si === t[i - 1].si + 1 && Math.abs(t[i].top - t[i - 1].top) <= MOVE_TOLERANCE) pinnedStep[t[i].si] = true;
+  }
+  const deadStretches = [];
+  for (let i = 0, run = 0; i <= steps.length; i++) {
+    if (i < steps.length && pinnedStep[i] && !active[i]) { run++; continue; }
+    if (run >= DEAD_STEPS) deadStretches.push({ from: steps[i - run].y, to: steps[i - 1].y });
+    run = 0;
+  }
+  return { counts, scrubbed: roots(scrubbed), tracked: tracks.size, activity: active, deadStretches };
 }
 
 export async function probeMotion(browser, url, { settleMs = 1500, viewport = { width: 1440, height: 900 } } = {}) {
@@ -134,5 +162,6 @@ export function motionTells(m) {
   if (!any && !m.libraries.largeCanvases) tells.push({ rule: 'no-scroll-motion', detail: 'nothing changes as the page scrolls' });
   else if (!rich && !m.libraries.largeCanvases) tells.push({ rule: 'fade-up-only', detail: `only opacity/translate reveals (${c.opacity} fades, ${c.parallax} shifts)` });
   if (!c.pinned && !c.horizontal && m.scrubbed < 2 && !m.libraries.largeCanvases) tells.push({ rule: 'no-signature-scene', detail: 'no pinned, horizontal or scrubbed scroll scene' });
+  for (const d of m.deadStretches || []) tells.push({ rule: 'dead-stretch', detail: `pinned from y=${d.from} to y=${d.to} with nothing changing: give that scroll distance a beat, or shorten the pin` });
   return tells;
 }

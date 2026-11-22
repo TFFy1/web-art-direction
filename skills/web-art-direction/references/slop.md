@@ -5,6 +5,7 @@ Patterns that make a page read as machine-made. Tier-C references in the library
 ## First screen
 - Centered headline + subhead + two buttons + product screenshot + logo wall, all in one viewport. (`21st-dev-ruixen-ui-templates-folio-open-source-data-intelligence-landing-template`)
 - Eyebrow pill or chip above the headline ("✨ New", "Backed by …", "#1 Product of the Day").
+- **Status dots, anywhere: banned outright.** A colored dot beside a label to suggest something live or online ("● October · open", "● Live", "● All systems normal", "● 3 online"), above all a green one, and above all in a pill in the nav. It is a template's shorthand for "real product". Say the fact in words or show it in the product itself; in app UIs, carry a state with an owned icon or the word in its color, never the generic dot. `shoot.mjs` flags `status-dot`.
 - Purple-to-blue, lavender or pink-lavender gradient washes and blurred blobs. (dribbble `25738085`, `25904369`, `27424439`, `okta-com`)
 - Glowing prompt box or input on black as the hero. (`framer-com`, `21st-dev-minhxthanh-components-waitlist-hero`)
 - Floating app icons or integration logos orbiting the headline. (dribbble `27190142`)
@@ -32,11 +33,13 @@ Patterns that make a page read as machine-made. Tier-C references in the library
 ## Surface
 - Glassmorphism cards and backdrop blur as decoration.
 - Soft shadows plus rounded corners on everything, nested cards inside cards.
-- Neon accent (lime, cyan, magenta) on dark with glowing borders.
+- Neon accent (lime, cyan, magenta) on dark with glowing borders. (A break color is different: one saturated hue, rationed, with one meaning; see page.md.)
+- An all-neutral palette with nothing saturated anywhere (`no-break-color`), or three competing accent hues (`competing-accents`).
 - Same fade-up entrance animation on every section, or no scroll motion at all: the page looks designed in a screenshot and dead in the browser.
 - Photos that are soft, blocky or over-compressed (under 1920px, quality under 80).
 - Dashboards: "Welcome back 👋", a row of four KPI cards with sparklines, a donut chart, a purple primary. (dribbble `26758172`, `25270785`)
 - Dashboards: the account menu in the top-right corner of the top bar, and fixed panes nobody can resize.
+- Dashboards that are dead to the touch: buttons that don't answer a press, tabs that jump, numbers that swap instead of rolling, rows that appear without saying they are new (`static-controls`, `no-press-feedback`). See micro-interactions.md.
 
 ## The test
 If someone could guess the page's look from its category alone ("AI tool → dark + glow", "fintech → purple gradient", "coffee → cream + serif"), it is generic, even if every element is well made.

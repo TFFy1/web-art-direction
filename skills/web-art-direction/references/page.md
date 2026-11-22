@@ -16,10 +16,20 @@
 - Load real fonts (Google Fonts or self-hosted) with `font-display: swap`; system fonts only for UI text.
 
 ## Color
-- Choose a strategy before choosing colors: restrained (neutrals + one accent), drenched (one color owns regions), or from photography.
+- Choose a strategy before choosing colors: restrained (neutrals + one break color), drenched (one color owns regions), or from photography. Every strategy still has one break color (below).
 - Text on color uses a tint of that color or the foreground, never mid grey.
 - Body text contrast at least 4.5:1, large text 3:1.
 - Dark or light comes from the use scene (who, where, what light), not from the category.
+
+### Break color
+A calm system with one shock of saturated color feels designed; an all-neutral page feels dull, and a multi-colored one feels like a template. Grey, white and black are a document. Add one signal yellow and they become sport. This applies to websites and dashboards alike.
+- **Base:** neutrals (two or three greys plus an ink), or one muted family. **Break:** a single saturated hue far from the base in hue and temperature, at full chroma. The quieter the base, the louder the break.
+- **Pick it from the concept's world, not the category:** safety orange from tools and hardware (`teenage-engineering`, `teenage-engineering-apps-ep-sample-tool`), fluorescent lime from racing (`landonorris-com`), stamp or ink blue from paperwork, highlighter yellow from reading, traffic red from Swiss posters, Klein blue from art. Never the category cliché: fintech purple, AI violet or cyan, wellness sage.
+- **Ration it:** 2–8% of the painted page (the palette probe in `report.json` measures it). It appears in three to five kinds of places, all with one meaning: the primary action, the selection or focus, the one number that matters, the anchor of the signature scene. One drenched moment is allowed (a band, the scene's payoff), and then the color stays rare everywhere else.
+- **One break only.** No second saturated hue. In dashboards, semantic colors (error, warning, success) are darker or desaturated, or carried by an icon, so they never compete with the break, and chart series are greys with the break on the highlighted series.
+- **Ink on the break:** define `--break` and `--on-break`. Yellow, lime and orange take black ink; blue and red take white. Check the contrast.
+- **Pairings that work:** graphite + safety orange (tool), black, white and grey + signal yellow (sport, timing), off-white paper + stamp blue (documents), concrete + fluorescent pink (fashion), navy + highlighter yellow (editorial), bone + traffic red (Swiss), bone + acid lime (`granola-ai`).
+- `shoot.mjs` reports `no-break-color` (almost nothing saturated), `competing-accents` (three or more saturated hues) and `accent-flood` (most of the page saturated).
 
 ## Imagery
 - Real photographs of real scenes or one authored object. Verify every image URL loads.

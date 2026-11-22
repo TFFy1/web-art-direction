@@ -6,6 +6,7 @@ import { execSync } from 'node:child_process';
 import { createRequire } from 'node:module';
 import { pathToFileURL } from 'node:url';
 import { probeMotion, filmstrip, motionTells } from './motion.mjs';
+import { probePalette, paletteTells } from './palette.mjs';
 
 const SLICE_HEIGHT = 1800;
 const MAX_HEIGHT = 16000;
@@ -79,6 +80,36 @@ function scan() {
   if (groups.size >= 2) add('repeated-equal-card-rows', `${groups.size} rows of equal icon/heading cards`);
   else if (groups.size === 1) add('equal-card-row', 'one row of equal icon/heading cards (fine once, check it is the right container)');
 
+  // Status dots ("● Live", "● October · closed") read as a template's idea of a live product.
+  const isDot = (cs, w, h) => w >= 4 && w <= 12 && Math.abs(w - h) <= 1 && parseFloat(cs.borderTopLeftRadius) >= w / 2 - 1 && cs.backgroundColor !== 'rgba(0, 0, 0, 0)';
+  const hasDot = (el) => {
+    // Only a dot set beside a label counts; unread badges on icons and avatars have no text next to them.
+    for (const p of ['::before', '::after']) { const ps = getComputedStyle(el, p); if (ps.content !== 'none' && isDot(ps, parseFloat(ps.width), parseFloat(ps.height)) && text(el)) return true; }
+    const r = el.getBoundingClientRect();
+    return el.children.length === 0 && isDot(getComputedStyle(el), r.width, r.height) && !!el.parentElement && !!text(el.parentElement);
+  };
+  const dotted = new Set();
+  for (const el of document.querySelectorAll('body *')) {
+    if (!visible(el)) continue;
+    const r = el.getBoundingClientRect(), s = getComputedStyle(el), t = text(el);
+    const pill = t && r.height >= 14 && r.height <= 48 && r.width <= 360 && parseFloat(s.borderTopLeftRadius) >= r.height / 2 - 2 && (s.backgroundColor !== 'rgba(0, 0, 0, 0)' || parseFloat(s.borderTopWidth) > 0);
+    const chrome = el.closest('header, nav, [role="banner"]') && t && t.length < 40;
+    if (!pill && !chrome) continue;
+    if (/^[●•◉⬤]/.test(t) || hasDot(el) || [...el.querySelectorAll('*')].some(hasDot)) dotted.add(el);
+  }
+  for (const el of dotted) {
+    if ([...dotted].some((d) => d !== el && el.contains(d))) continue;
+    add('status-dot', `"${text(el).slice(0, 40)}"${el.closest('header, nav, [role="banner"]') ? ' in the nav' : ''}`);
+  }
+
+  const controls = [...document.querySelectorAll('button, a[href], [role="button"], [role="tab"], [role="switch"], input, select, summary')].filter(visible);
+  const animated = controls.filter((el) => getComputedStyle(el).transitionDuration.split(',').some((d) => parseFloat(d) > 0));
+  if (controls.length >= 5 && animated.length / controls.length < 0.3) add('static-controls', `${animated.length} of ${controls.length} interactive elements have any transition`);
+  let activeRules = 0;
+  const walk = (rules) => { for (const r of rules) { if (r.selectorText && r.selectorText.includes(':active')) activeRules++; if (r.cssRules) walk(r.cssRules); } };
+  for (const sheet of document.styleSheets) { try { walk(sheet.cssRules); } catch { /* cross-origin sheet */ } }
+  if (controls.length >= 5 && !activeRules) add('no-press-feedback', 'no :active style anywhere: buttons do not answer a press (ignore if a library such as Motion whileTap handles it)');
+
   const body = document.body.innerText;
   const phrases = ['elevate', 'unlock', 'seamless', 'supercharge', 'revolutioniz', 'empower', 'streamline', 'effortless', 'next-level', 'game-changer', "today's fast-paced", 'all-in-one platform', 'welcome back', 'cutting-edge', 'world-class', 'take your', 'to the next level'];
   for (const p of phrases) { const n = body.toLowerCase().split(p).length - 1; if (n) add('stock-phrase', `"${p}" x${n}`); }
@@ -151,10 +182,13 @@ try {
   const { frames, ...motionData } = motion;
   report.motion = motionData;
   report.tells.motion = motionTells(motion);
+  report.palette = await probePalette(browser, url, { settleMs: SETTLE_MS });
+  report.tells.palette = paletteTells(report.palette);
 } finally { await browser.close(); }
 
 await fs.writeFile(path.join(outDir, 'report.json'), JSON.stringify(report, null, 2));
-const all = [...report.tells.desktop, ...report.tells.mobile, ...report.tells.motion];
+const all = [...report.tells.desktop, ...report.tells.mobile, ...report.tells.motion, ...report.tells.palette];
 console.log(`shots in ${outDir}: desktop.jpg, ${report.shots.slices.length} slices, mobile.jpg, mobile-full.jpg, filmstrip.jpg`);
 console.log(`motion: ${JSON.stringify(report.motion.counts)} scrubbed=${report.motion.scrubbed} libs=${JSON.stringify(report.motion.libraries)}`);
+console.log(`palette: ${(report.palette.page.accentShare * 100).toFixed(1)}% saturated; ${report.palette.page.clusters.map((c) => `${c.hex} ${(c.share * 100).toFixed(1)}%`).join(', ') || 'no accent hues'}`);
 console.log(all.length ? `tells (${all.length}):\n${all.map((t) => `- ${t.rule}: ${t.detail}`).join('\n')}` : 'tells: none');

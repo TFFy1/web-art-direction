@@ -28,6 +28,57 @@ To see a site's motion yourself, shoot it: `node scripts/shoot.mjs https://site.
 2. **Section behaviors.** Every section gets a motion that suits its content, and no two neighbors share one. A list reveals item by item with its numbers counting; a photo un-crops from a slit; a quote types itself; a diagram draws its lines. "Fade up 24px" is not a behavior.
 3. **Texture.** Small continuous life: a cursor-reactive detail, an owned motif that drifts with scroll velocity, a sticky element that changes state between sections, a progress mark tied to the story.
 
+## Tell the scene as a story
+
+A scroll scene is a short animation whose playhead is the visitor's thumb, so the grammar of short animated films applies. These rules come from the shot logs behind the `animate` skill:
+
+1. **The plot is a true process** of the product, in its real order (the slips arrive → they sort → one question is asked → the totals add up → the stamp lands). Each beat follows from the one before, so nothing needs a caption to explain it.
+2. **One constant the eye can hold.** One anchor object keeps its screen position through the scene while everything around it changes (the receipt). It carries the break color (page.md, Color), and nothing else in the scene does.
+3. **Beat roles, with a scroll budget for each:**
+
+   | Role | What happens | Budget |
+   | --- | --- | --- |
+   | open | the start state, readable before anything moves | about 0.3 vh |
+   | build | detail accrues on one framing | 0.5–1 vh |
+   | journey | the most changes per 100px: the fastest stretch | 1–1.5 vh |
+   | hold | a deliberate still beat; density drops, nothing new arrives | at most 0.3 vh |
+   | payoff | the biggest single change, at the largest scale | 0.3–0.5 vh |
+   | settle | the finished state held so it can be read before the unpin | about 0.3 vh |
+
+4. **The busiest moment comes just before the hold. The payoff is the cleanest frame, not the busiest.**
+5. **Something changes at every 250–300px step** except during the one hold. The probe flags a `dead-stretch` when a pinned section goes about a viewport (three steps) with nothing changing.
+6. **What existed before a beat is on screen from its first frame; only the beat's own effect animates.** Never fade the whole stage in.
+7. **The end is the start, changed.** A later section brings the anchor back in its finished state (the stamped receipt by the footer).
+
+## Storyboard before you animate
+
+Write the scene as a beat table before writing code: scroll range, what is on screen, what changes, its role, and how it hands off to the next beat. Build the timeline with one label per beat. Then expose it in development (`window.__scene = tl`) and render each beat as a still to check it before building the rest of the page:
+
+```js
+for (const p of [0, 0.12, 0.45, 0.7, 0.78, 0.92, 1]) {
+  await page.evaluate((p) => { const st = window.__scene.scrollTrigger; scrollTo(0, st.start + p * (st.end - st.start)); }, p);
+  await page.waitForTimeout(700);
+  await page.screenshot({ path: `board-${p}.jpg` });
+}
+```
+
+Every frame must pass "legible when paused", with the anchor in place. A frame that can't be read is fixed now, while it is cheap.
+
+## Bridges between sections
+
+Most sections just follow each other. Two or three should be joined by a reason you could say out loud:
+
+| Link | Reason | Recipe |
+| --- | --- | --- |
+| shape morph | this becomes that | the last object of one section moves and scales into the container of the next (the receipt becomes the paper the price list is printed on) |
+| scale-in | going inside | zoom through an element until it is the next section's background |
+| match-position | same place, new world | a sticky element holds while the section changes beneath it |
+| time-cut | later | the same framing, with the time, light or state changed (the clock jumps to 4:40) |
+| cause-effect | this made that | an action at the end of one section sets the first state of the next |
+| callback | back to the start, changed | the hero object returns, finished |
+
+Triggered motion (things that play once when they are reached) uses springs or `back.out(1.4)` for objects with mass, and no overshoot on large type. Scrubbed motion follows the thumb (scrub 0.4–1).
+
 ## Technique catalogue
 
 Pick by meaning, not novelty. Each has a stack recipe below.
