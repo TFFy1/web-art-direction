@@ -37,7 +37,8 @@ Ask for a website or landing page normally ("build a landing page for …"); the
 skills/web-art-direction/
   SKILL.md              the process
   references/           moves.md (composition library), page.md (craft, break color), slop.md (generic look),
-                        sections.md (section catalogue), motion.md (scroll scenes), micro-interactions.md (dashboard feel)
+                        sections.md (section catalogue), motion.md (scroll scenes), micro-interactions.md (dashboard feel, sound),
+                        effects.md (backgrounds, shaders, 3D), product-ux.md (settings, auth, 404, states), sources.md (graded outside resources)
   scripts/shoot.mjs     screenshots + mechanical tells for review
   scripts/motion.mjs    scroll-motion probe and filmstrip
   scripts/palette.mjs   break-color probe (share of saturated color, hue clusters)
