@@ -27,13 +27,13 @@ Each of those jobs can be done by a section nobody expects. This catalogue was b
 - **Customer story with documentary photo and facts row.** One large photograph of the customer's world, then three facts in a row, then other stories as a plain list of one-liners with logos. `stripe-com`
 - **Quote as a callout, not a card.** One quote on a tinted field with a mono attribution and one number from that customer. `increase-com`
 - **Logo grid as a ruled table.** Client marks in a strict grid with hairlines, like a register. `basement-studio`
-- **Depth cloud of people.** Photos scattered at different depths around one sentence. `landonorris.com`
+- **Depth cloud of people.** Photos scattered at different depths around one sentence. `landonorris-com`
 - **Video testimonial frame.** One person talking, shot well, with the quote overlaid. `mercury-com`
 
 ### Show range or catalogue
-- **Index with images inside the type.** A huge serif list of names with small thumbnails set inside the lines. `locomotive.ca`
+- **Index with images inside the type.** A huge serif list of names with small thumbnails set inside the lines. `locomotive-ca-en`
 - **Lineup strip.** The whole range as one horizontal row, working as navigation. `apple-com-iphone`, `becaneparis-com`
-- **Collection grid on black.** Objects photographed alike, with year and name, like a museum drawer. `landonorris.com` helmets
+- **Collection grid on black.** Objects photographed alike, with year and name, like a museum drawer. `landonorris-com` helmets
 - **Category photo tiles with filter chips.** Values or categories as chips that swap the content. `faire-com`
 
 ### Interrupt and reset the eye
@@ -53,10 +53,10 @@ Each of those jobs can be done by a section nobody expects. This catalogue was b
 - **Accordion paired with an image that changes per question.** `apple-com-iphone`
 
 ### Close
-- **Giant wordmark footer.** The brand name across the full width, links tiny beneath. `basement-studio`, `tines.com`
+- **Giant wordmark footer.** The brand name across the full width, links tiny beneath. `basement-studio`, `tines-com`
 - **Scattered photo collage around one sentence and one link.** `faire-com`
 - **Signature statement.** A short line and a mark with lots of space, nothing else. `teenage-engineering` ("designed and engineered by…"), `claude-com`
-- **Rounded frame rising from the bottom.** The last section arrives as a framed panel with the hero object returning. `landonorris.com`
+- **Rounded frame rising from the bottom.** The last section arrives as a framed panel with the hero object returning. `landonorris-com`
 
 ## Composing the page
 
