@@ -60,6 +60,7 @@ async function assertPublicUrl(raw) {
 const LOW_MEMORY_ARGS = ['--disable-dev-shm-usage', '--disable-gpu', '--renderer-process-limit=1', '--disable-extensions', '--disable-background-networking', '--js-flags=--max-old-space-size=256'];
 const MEASURE_BLOCKED = new Set(['image', 'media']);
 const CAPTURE_BLOCKED = new Set(['media']);
+const MEASURE_BLOCKED_NO_JS = new Set(['image', 'media', 'script']);
 
 let browserPromise = null;
 function browser() {
@@ -217,15 +218,28 @@ function measureInPage() {
   };
 }
 
-export async function measure({ url }) {
-  const safe = await assertPublicUrl(url);
-  const ctx = await guardedContext({ viewport: DESKTOP }, MEASURE_BLOCKED);
+async function measureOnce(safe, javaScriptEnabled) {
+  const ctx = await guardedContext({ viewport: DESKTOP, javaScriptEnabled }, javaScriptEnabled ? MEASURE_BLOCKED : MEASURE_BLOCKED_NO_JS);
   try {
     const page = await ctx.newPage();
     await open(page, safe);
     await walk(page);
     return { url: page.url(), ...(await page.evaluate(measureInPage)) };
   } finally { await ctx.close(); }
+}
+
+const PAGE_CRASH = /crash|Target closed|has been closed/i;
+
+export async function measure({ url }) {
+  const safe = await assertPublicUrl(url);
+  try { return await measureOnce(safe, true); }
+  catch (e) {
+    if (!PAGE_CRASH.test(e.message)) throw e;
+    // Heavy script bundles exhaust a small container's memory; most marketing pages are server-rendered,
+    // so their layout and type can still be measured with scripts off.
+    console.error(`[op:measure] page crashed, retrying without JavaScript: ${safe}`);
+    return { ...(await measureOnce(safe, false)), note: 'Measured with JavaScript off because the page crashed the browser; client-rendered parts may be missing.' };
+  }
 }
 
 const slugOf = (u) => { const x = new URL(u); return (x.hostname.replace(/^www\./, '') + x.pathname).replace(/\/$/, '').replace(/[^a-z0-9]+/gi, '-').toLowerCase().slice(0, 120); };

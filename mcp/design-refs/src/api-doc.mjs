@@ -25,7 +25,7 @@ declare const refs: {
   stats(): Promise<{ total: number; byCategory: Record<string, number>; byTier: Record<string, number> }>;
   /** Re-grade a reference after looking at it. */
   tag(id: string, patch: { tier?: Tier; moves?: string[]; note?: string }): Promise<RefSummary>;
-  /** Load a live public site in headless Chrome and measure it: fonts per role (h1/h2/h3/body/nav/button), type scale, font families, text and background colors, radii, shadows, content widths, primary button, and a section map (top, height, background, heading, image count, word count). ~15-40s. */
+  /** Load a live public site in headless Chrome and measure it: fonts per role (h1/h2/h3/body/nav/button), type scale, font families, text and background colors, radii, shadows, content widths, primary button, and a section map (top, height, background, heading, image count, word count). ~15-40s. If a heavy page crashes the server's browser, it is measured again with JavaScript off and the result carries a \`note\`. */
   measure(url: string): Promise<object>;
   /** Screenshot a public site (desktop, full page, mobile) into the library at tier "?". Look at it, then refs.tag() it. ~30-60s. */
   capture(url: string, category: string, name: string): Promise<RefSummary & { notes: string[] }>;
