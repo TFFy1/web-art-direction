@@ -238,7 +238,11 @@ export async function measure({ url }) {
     // Heavy script bundles exhaust a small container's memory; most marketing pages are server-rendered,
     // so their layout and type can still be measured with scripts off.
     console.error(`[op:measure] page crashed, retrying without JavaScript: ${safe}`);
-    return { ...(await measureOnce(safe, false)), note: 'Measured with JavaScript off because the page crashed the browser; client-rendered parts may be missing.' };
+    try { return { ...(await measureOnce(safe, false)), note: 'Measured with JavaScript off because the page crashed the browser; client-rendered parts may be missing.' }; }
+    catch (e2) {
+      if (PAGE_CRASH.test(e2.message)) throw new UserError("This page is too heavy for the server's browser (it ran out of memory), even with JavaScript off. Measure another reference, or study its screenshots with refs.image().");
+      throw e2;
+    }
   }
 }
 
