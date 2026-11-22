@@ -79,6 +79,10 @@ Most sections just follow each other. Two or three should be joined by a reason 
 
 Triggered motion (things that play once when they are reached) uses springs or `back.out(1.4)` for objects with mass, and no overshoot on large type. Scrubbed motion follows the thumb (scrub 0.4–1).
 
+## Text as motion
+
+Kinetic type can carry a page by itself: one treatment that fits the voice (line masks, a scramble, a variable-font axis moving with scroll, words lighting up). Rules and the clip-art list are in effects.md, Kinetic type. Vocabulary for briefing motion precisely: animations.dev/vocabulary (sources.md).
+
 ## Technique catalogue
 
 Pick by meaning, not novelty. Each has a stack recipe below.

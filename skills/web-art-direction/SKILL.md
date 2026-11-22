@@ -1,6 +1,6 @@
 ---
 name: web-art-direction
-description: Art direction for websites and landing pages so they look made by an experienced human designer, not generated. Use whenever building, redesigning or reviewing a marketing site, landing page, storefront, marketplace home, product page or portfolio, or when the user says the design looks generic, templated, "AI", "slop", or wants it premium, distinctive or award-level. Works from a library of graded real-world references (design-refs MCP), a composition-move library, and a fresh-context design critic that loops fixes until the page passes and records lessons so mistakes are not repeated. For component behavior (toasts, drawers, menus, dialogs) it hands off to ui-libraries-no-ai-look.
+description: Art direction for websites, landing pages, dashboards and every product surface (settings, sign-in, error and empty states, 404, pricing, docs, changelog, careers, articles, checkout) so they look made by an experienced human designer, not generated. Use whenever building, redesigning or reviewing any of these, or a storefront, marketplace home, product page or portfolio, or when the user says the design looks generic, templated, "AI", "slop", or wants it premium, distinctive or award-level. Works from a library of graded real-world references (design-refs MCP), a composition-move library, and a fresh-context design critic that loops fixes until the page passes and records lessons so mistakes are not repeated. For component behavior (toasts, drawers, menus, dialogs) it hands off to ui-libraries-no-ai-look.
 ---
 
 # Web art direction
@@ -19,7 +19,12 @@ Load these files only when their step comes up:
 - [references/slop.md](references/slop.md): the generic look, with counter-examples
 - [references/sections.md](references/sections.md): section types beyond the AI default, by job, with references
 - [references/motion.md](references/motion.md): scroll choreography, the signature scene told as a story, storyboarding, bridges between sections, techniques and stacks
-- [references/micro-interactions.md](references/micro-interactions.md): press, hover, drag and data-change details and fidgets (dashboards above all)
+- [references/micro-interactions.md](references/micro-interactions.md): press, hover, drag and data-change details, fidgets and sound (dashboards above all)
+- [references/effects.md](references/effects.md): backgrounds, visual effects, 3D (three.js, shaders) and kinetic type: when they earn their place and how to build them
+- [references/product-ux.md](references/product-ux.md): pages and states beyond the home page: settings, auth, 404/500, pricing, docs, changelog, careers, legal, checkout, onboarding, empty, loading, error, success
+- [references/sources.md](references/sources.md): outside resources by decision (type, color, sections, motion, 3D, backgrounds, components, sound), graded use / care / avoid
+
+**The library is organised by decision as well as by industry.** Every reference carries facets (the decisions it teaches): `layout`, `type`, `color`, `imagery`, `copy`, `motion`, `scroll`, `3d`, `effects`, `sections`, `components`, `micro-interactions`, `app-shell`, `data-viz`, page types (`page-404`, `page-auth`, `page-settings`, `page-pricing`, `page-changelog`, `page-careers`, `page-docs`, `page-article`, `page-case-study`, `page-about`, `page-contact`, `page-legal`, `page-checkout`, `page-onboarding`) and states (`state-empty`, `state-error`, `state-loading`, `state-success`). Search by the decision you are making: `refs.search({ facet: 'page-settings', tier: 'A' })`.
 
 ## Process
 
@@ -39,12 +44,14 @@ Research is where ideas come from; a longer study beats a faster build. Don't st
 Write one line per reference on what you take from it: a decision, not a layout. End with **"New to me:"**, the ideas this research gave you that you would not have reached alone, and use at least one.
 
 ### 4. Direction
-Read moves.md. Write down:
+First name the surfaces and decisions this brief touches (a home page, a 404, settings, an error state, a 3D hero, kinetic type) and open the matching guide and facet for each: product-ux.md for pages and states, effects.md before any background, effect or 3D, sources.md for type, color and sound research. Then read moves.md and write down:
 - **The rut:** the page this category always ships, and the anti-slop version of it (e.g. cream background + serif + terracotta). Both are off-limits unless the brief pins them.
 - **Thesis:** one sentence naming the one idea this page owns.
 - **First screen:** one first-screen move and exactly what sits where, at what scale.
 - **Sections:** read sections.md. List the jobs the page must do, then pick one section per job, in order, with the container and rhythm of each. At least half come from outside the AI-default list; no two neighbors share a container; at most one card grid.
 - **Motion:** read motion.md. The signature scene (which section, how many vh pinned, what the scroll performs and why that is this product's verb), its beat table (roles, scroll budget, the anchor object, the hold before the payoff), the two or three bridges between sections, the behavior of every other section (no two neighbors alike), the texture, and the phone version.
+- **Effects:** none, or the one effect with its reason from effects.md (which situation, which rung of the ladder, the fallback, the phone version).
+- **States:** for every screen, the empty, loading, error and success states it needs (product-ux.md).
 - **Type, color, imagery:** one type move; one color strategy with hex values, naming the **break color**, where it comes from, what it means and the three to five places it appears (page.md, Break color); and the imagery plan with real sources.
 
 Put this contract in an HTML comment at the top of the page. If any line reads like a mood instead of a decision, it isn't decided yet.

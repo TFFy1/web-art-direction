@@ -20,7 +20,7 @@ async function fixture() {
   await sharp({ create: { width: 1440, height: 900, channels: 3, background: '#224466' } }).jpeg().toFile(path.join(dir, 'desktop.jpg'));
   await sharp({ create: { width: 1440, height: 5000, channels: 3, background: '#664422' } }).jpeg().toFile(path.join(dir, 'full.jpg'));
   const entries = [
-    { id: 'example-com', category: 'saas', source: 'test', name: 'Example', url: 'https://example.com/', files: { desktop: 'saas/example-com/desktop.jpg', full: 'saas/example-com/full.jpg' }, tier: 'A', moves: ['type-as-hero'], note: 'fixture' },
+    { id: 'example-com', category: 'saas', source: 'test', name: 'Example', url: 'https://example.com/', files: { desktop: 'saas/example-com/desktop.jpg', full: 'saas/example-com/full.jpg' }, tier: 'A', moves: ['type-as-hero'], facets: ['type', 'page-404'], note: 'fixture' },
     { id: 'other-com', category: 'ecommerce', source: 'test', name: 'Other', url: 'https://other.com/', files: {}, tier: 'C', moves: ['purple-blue-gradient'], note: 'counter' },
   ];
   await fs.writeFile(path.join(dataDir, 'refs', 'index.json'), JSON.stringify({ entries }));
@@ -74,6 +74,19 @@ test('search filters by tier and category', async () => {
   const out = JSON.parse(textOf(r).split('result:\n')[1]);
   assert.equal(out.total, 1);
   assert.equal(out.results[0].id, 'example-com');
+});
+
+test('search filters by facet, and tag rejects unknown facets', async () => {
+  const parse = (r) => JSON.parse(textOf(r).split('result:\n')[1]);
+  const one = parse(await run(`return await refs.search({ facet: 'page-404' });`));
+  assert.deepEqual(one.results.map((r) => r.id), ['example-com']);
+  assert.deepEqual(one.results[0].facets, ['type', 'page-404']);
+  const none = parse(await run(`return await refs.search({ facet: ['3d', 'effects'] });`));
+  assert.equal(none.total, 0);
+  const stats = parse(await run(`return await refs.stats();`));
+  assert.equal(stats.byFacet['page-404'], 1);
+  const bad = await run(`return await refs.tag('other-com', { facets: ['sparkles'] });`);
+  assert.equal(bad.isError, true);
 });
 
 test('image attaches a resized slice and reports paging', async () => {

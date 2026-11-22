@@ -8,6 +8,15 @@ const TIERS = ['A', 'B', 'C', '?'];
 const VIEWS = ['desktop', 'full', 'mobile', 'shot'];
 const SLUG = /^[a-z0-9-]{1,120}$/;
 const CATEGORY = /^[a-z0-9-]{1,40}$/;
+// The design decision a reference teaches, so a builder can look up "a 404 page" or "type-led" across industries.
+export const FACETS = [
+  'layout', 'type', 'color', 'imagery', 'copy', 'motion', 'scroll', '3d', 'effects', 'sections', 'components', 'micro-interactions',
+  'app-shell', 'data-viz',
+  'page-404', 'page-auth', 'page-settings', 'page-pricing', 'page-changelog', 'page-careers', 'page-docs', 'page-article',
+  'page-case-study', 'page-about', 'page-contact', 'page-legal', 'page-checkout', 'page-onboarding',
+  'state-empty', 'state-error', 'state-loading', 'state-success',
+];
+const FACET = z.enum(FACETS);
 
 export const schemas = {
   search: z.object({
@@ -15,6 +24,7 @@ export const schemas = {
     tier: z.union([z.enum(TIERS), z.array(z.enum(TIERS)).max(4)]).optional(),
     moves: z.array(z.string().max(60)).max(10).optional(),
     match: z.enum(['all', 'any']).default('any'),
+    facet: z.union([FACET, z.array(FACET).max(8)]).optional(),
     text: z.string().max(100).optional(),
     limit: z.number().int().min(1).max(limits.searchMaxResults).default(12),
   }).strict().default({}),
@@ -30,6 +40,7 @@ export const schemas = {
     id: z.string().regex(SLUG),
     tier: z.enum(TIERS).optional(),
     moves: z.array(z.string().regex(/^[a-z0-9-]{1,60}$/)).max(12).optional(),
+    facets: z.array(FACET).max(8).optional(),
     note: z.string().max(400).optional(),
   }).strict(),
   lessonsList: z.object({
@@ -62,20 +73,22 @@ async function saveIndex(index) {
   indexCache = index;
 }
 
-const summary = (e) => ({ id: e.id, name: e.name, category: e.category, tier: e.tier, moves: e.moves, note: e.note, url: e.url, views: Object.keys(e.files) });
+const summary = (e) => ({ id: e.id, name: e.name, category: e.category, tier: e.tier, moves: e.moves, facets: e.facets || [], note: e.note, url: e.url, views: Object.keys(e.files) });
 
 export async function search(q) {
   const { entries } = await loadIndex();
   const tiers = q.tier ? [q.tier].flat() : null;
   const text = q.text?.toLowerCase();
+  const facets = q.facet ? [q.facet].flat() : null;
   const rows = entries.filter((e) => {
+    if (facets && !facets.some((f) => (e.facets || []).includes(f))) return false;
     if (q.category && e.category !== q.category) return false;
     if (tiers && !tiers.includes(e.tier)) return false;
     if (q.moves?.length) {
       const hit = q.match === 'all' ? q.moves.every((m) => e.moves.includes(m)) : q.moves.some((m) => e.moves.includes(m));
       if (!hit) return false;
     }
-    if (text && !`${e.name} ${e.note} ${e.moves.join(' ')} ${e.url}`.toLowerCase().includes(text)) return false;
+    if (text && !`${e.name} ${e.note} ${e.moves.join(' ')} ${(e.facets || []).join(' ')} ${e.url}`.toLowerCase().includes(text)) return false;
     return true;
   });
   const order = { A: 0, B: 1, C: 2, '?': 3 };
@@ -105,7 +118,9 @@ export async function moves() {
 export async function stats() {
   const { entries } = await loadIndex();
   const count = (k) => entries.reduce((a, e) => ((a[e[k]] = (a[e[k]] || 0) + 1), a), {});
-  return { total: entries.length, byCategory: count('category'), byTier: count('tier') };
+  const byFacet = {};
+  for (const e of entries) for (const f of e.facets || []) byFacet[f] = (byFacet[f] || 0) + 1;
+  return { total: entries.length, byCategory: count('category'), byTier: count('tier'), byFacet };
 }
 
 function resolveFile(entry, view) {
@@ -140,6 +155,7 @@ export async function tag(q) {
   if (!e) throw new UserError(`No reference with id "${q.id}".`);
   if (q.tier) e.tier = q.tier;
   if (q.moves) e.moves = q.moves;
+  if (q.facets) e.facets = q.facets;
   if (q.note !== undefined) e.note = q.note;
   e.updatedAt = new Date().toISOString();
   await saveIndex(index);
@@ -149,7 +165,7 @@ export async function tag(q) {
 export async function addEntry(entry) {
   const index = await loadIndex();
   const i = index.entries.findIndex((x) => x.id === entry.id);
-  if (i >= 0) index.entries[i] = { ...index.entries[i], ...entry, tier: index.entries[i].tier, moves: index.entries[i].moves, note: index.entries[i].note };
+  if (i >= 0) index.entries[i] = { ...index.entries[i], ...entry, tier: index.entries[i].tier, moves: index.entries[i].moves, facets: index.entries[i].facets, note: index.entries[i].note };
   else index.entries.push(entry);
   await saveIndex(index);
   return summary(entry);

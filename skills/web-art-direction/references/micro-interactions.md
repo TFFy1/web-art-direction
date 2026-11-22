@@ -59,6 +59,15 @@ button:active { transform: scale(.97); }
 @media (prefers-reduced-motion: reduce) { * { transition-duration: .01ms !important; animation-duration: .01ms !important; } }
 ```
 
+## Sound
+
+Sound is the strongest feedback and the easiest to overdo. Use it when the product is about feel (creative tools, music, games, a celebratory moment in a finance app), never as decoration.
+- **Off by default** on the web, with a visible switch in settings; respect the system's reduced-motion and mute settings.
+- **One personality** for the whole product (soft, glassy, mechanical, organic), matching the visual system, the way a break color does.
+- **Few sounds with one meaning each:** confirm, toggle, error, complete. Nothing on hover or on every keystroke.
+- **Quiet and short:** under 150ms for clicks, mixed well below other audio; the error sound is lower, not louder.
+- **Sources:** UI SFX (uisfx.com, open source, npm) or Bencho (bencho.dev, synthesized with the Web Audio API, no files). See sources.md.
+
 ## Checking it
 
 Screenshots can't show any of this. Test it in the page: press, hover, drag, resize and type through every control, at least once with the keyboard, and once with `prefers-reduced-motion`. `report.json` flags `static-controls` (most interactive elements have no transition) and `no-press-feedback` (no `:active` style changes the transform or colour).
