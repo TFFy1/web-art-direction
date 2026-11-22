@@ -41,6 +41,7 @@ export const limits = {
   resultMaxChars: 24_000,
   logMaxLines: 200,
   imagesPerRun: 6,
+  imageMaxSliceHeight: 6000,
   imageMaxWidth: 1600,
   imageDefaultWidth: 1000,
   fullPageDefaultSliceHeight: 2400,

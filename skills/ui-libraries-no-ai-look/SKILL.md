@@ -28,6 +28,7 @@ Shadcn copies code into the project instead of hiding it in a package, so Claude
 | Drawers (drag up on mobile, flick down to close) | Vaul | real drag behavior |
 | Command menu (the Cmd+K search box) | cmdk ("Command K") | keyboard use that does not break |
 | Numbers that change (prices, balances) | Number Flow | animates the change instead of jumping |
+| Resizable split panes (sidebar, detail, assistant panel) | react-resizable-panels | drag handles, keyboard resizing, min/max, collapse, saved layout |
 
 Hand-built versions fail in predictable ways: toasts pile up or vanish before they can be read, drawers only open and close without dragging, command menus break with the keyboard. These small details are what make a product feel finished, and they are exactly what AI skips. If you catch yourself writing a custom toast system, drawer or command menu, stop and use the specialist.
 
@@ -40,7 +41,7 @@ Sonner and Vaul are by Emil Kowalski, who also publishes a skill for picking a U
 - **Landing page effects** (3D cards, background beams, marquees): Aceternity. Installs via the Shadcn CLI, or have the coding agent add it.
 - **Marketplace of many authors, for a specific need without committing to one library**: 21st.dev.
 
-Rule for this group: **one big standout moment per page.** One animated hero or one interactive background makes a page feel designed. Ten on one page gives the next AI look where everything glows and moves and nothing stands out.
+Rule for this group: **one big standout effect component per page.** One animated hero or one interactive background makes a page feel designed. Ten on one page gives the next AI look where everything glows and moves and nothing stands out. This limits stock effect components only; the page's own scroll choreography (a signature scene plus a different behavior per section) is a separate job, covered by the web-art-direction skill's motion.md.
 
 ## How to apply
 

@@ -63,7 +63,14 @@ const CAPTURE_BLOCKED = new Set(['media']);
 
 let browserPromise = null;
 function browser() {
-  if (!browserPromise) browserPromise = chromium.launch({ headless: true, args: LOW_MEMORY_ARGS }).catch((e) => { browserPromise = null; throw e; });
+  if (!browserPromise) {
+    const launching = chromium.launch({ headless: true, args: LOW_MEMORY_ARGS }).then((b) => {
+      // A crashed Chrome (out of memory on a heavy page) must not poison every later call.
+      b.on('disconnected', () => { if (browserPromise === launching) browserPromise = null; });
+      return b;
+    }).catch((e) => { browserPromise = null; throw e; });
+    browserPromise = launching;
+  }
   return browserPromise;
 }
 
@@ -252,7 +259,7 @@ async function captureOne({ url, category, name }, slug) {
     await p.screenshot({ path: path.join(dir, 'desktop.jpg'), type: 'jpeg', quality: 80 });
     files.desktop = `${category}/${slug}/desktop.jpg`;
     const tall = pageHeight > limits.captureMaxHeight;
-    await p.screenshot({ path: path.join(dir, 'full.jpg'), type: 'jpeg', quality: 60, fullPage: true, ...(tall ? { clip: { x: 0, y: 0, width: DESKTOP.width, height: limits.captureMaxHeight } } : {}) });
+    await p.screenshot({ path: path.join(dir, 'full.jpg'), type: 'jpeg', quality: 60, fullPage: true, clip: { x: 0, y: 0, width: DESKTOP.width, height: tall ? limits.captureMaxHeight : pageHeight } });
     files.full = `${category}/${slug}/full.jpg`;
   } catch (e) { notes.push(`desktop: ${e.message.split('\n')[0]}`); }
   finally { await desk.close(); }

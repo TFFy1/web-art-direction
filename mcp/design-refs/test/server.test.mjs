@@ -134,6 +134,12 @@ test('measure and capture refuse private addresses', async () => {
   }
 });
 
+test('image rejects a top past the end of the picture', async () => {
+  const r = await run(`return await refs.image('example-com', { view: 'full', top: 49000 });`);
+  assert.equal(r.isError, true);
+  assert.match(textOf(r), /past the end of this image/);
+});
+
 test('at most six images per run', async () => {
   const r = await run(`for (let i = 0; i < 7; i++) await refs.image('example-com', { width: 200 });`);
   assert.equal(r.isError, true);

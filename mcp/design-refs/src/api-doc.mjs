@@ -15,10 +15,10 @@ interface RefSummary { id: string; name: string; category: string; tier: Tier; m
 
 declare const refs: {
   /** Filter the library. Categories: big-tech, saas, ecommerce, marketplace, enterprise, creative, dribbble, 21st, plus any added by capture. */
-  search(q?: { category?: string; tier?: Tier | Tier[]; moves?: string[]; match?: 'all' | 'any'; text?: string; limit?: number }): Promise<{ total: number; results: RefSummary[] }>;
-  /** Full entry with file paths and capture metadata. */
+  search(q?: { category?: string; tier?: Tier | Tier[]; moves?: string[]; match?: 'all' | 'any'; text?: string; limit?: number /* 1-40, default 12 */ }): Promise<{ total: number; results: RefSummary[] }>;
+  /** Full entry: url, files per view, pageHeight, capturedAt, tier, moves, note. */
   get(id: string): Promise<object>;
-  /** Attach an image to the result. Full pages are tall: page through them with top/height (default slice 2400px). width 200-1600, default 1000. */
+  /** Attach an image to the result. Full pages are tall: page through them with top/height (default slice 2400px, max 6000; a top past the end is an error). width 200-1600, default 1000. */
   image(id: string, opts?: { view?: View; top?: number; height?: number; width?: number }): Promise<{ id: string; view: View; source: { width: number; height: number }; slice: { top: number; height: number }; more: boolean }>;
   /** Move vocabulary with counts and tier-A examples. */
   moves(): Promise<{ move: string; count: number; tierA: string[] }[]>;

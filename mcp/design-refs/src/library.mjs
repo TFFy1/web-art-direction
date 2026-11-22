@@ -23,7 +23,7 @@ export const schemas = {
     id: z.string().regex(SLUG),
     view: z.enum(VIEWS).optional(),
     top: z.number().int().min(0).max(50_000).optional(),
-    height: z.number().int().min(100).max(6_000).optional(),
+    height: z.number().int().min(100).max(limits.imageMaxSliceHeight).optional(),
     width: z.number().int().min(200).max(limits.imageMaxWidth).default(limits.imageDefaultWidth),
   }).strict(),
   tag: z.object({
@@ -121,7 +121,8 @@ export async function image(q) {
   const entry = await get({ id: q.id });
   const { view, abs } = resolveFile(entry, q.view);
   const meta = await sharp(abs).metadata();
-  const top = Math.min(q.top ?? 0, Math.max(0, meta.height - 1));
+  const top = q.top ?? 0;
+  if (top >= meta.height) throw new UserError(`top ${top} is past the end of this image (height ${meta.height}).`);
   const defaultHeight = view === 'full' ? limits.fullPageDefaultSliceHeight : meta.height;
   const height = Math.min(q.height ?? defaultHeight, meta.height - top);
   const width = Math.min(q.width, meta.width);

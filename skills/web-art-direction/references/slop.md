@@ -20,6 +20,7 @@ Patterns that make a page read as machine-made. Tier-C references in the library
 - Testimonials as three identical quote cards with round avatars and five stars.
 - A stats band of four big numbers with small labels, unsourced.
 - FAQ accordion + CTA band + mega footer as an automatic ending.
+- The default section order: hero → logo wall → three feature cards → how it works 1-2-3 → testimonials → three-column pricing → FAQ → CTA band. Replace at least half with sections from sections.md.
 
 ## Type and copy
 - One safe sans (Inter, DM Sans, Plus Jakarta) at medium sizes everywhere; no real display size.
@@ -32,8 +33,10 @@ Patterns that make a page read as machine-made. Tier-C references in the library
 - Glassmorphism cards and backdrop blur as decoration.
 - Soft shadows plus rounded corners on everything, nested cards inside cards.
 - Neon accent (lime, cyan, magenta) on dark with glowing borders.
-- Same fade-up entrance animation on every section.
+- Same fade-up entrance animation on every section, or no scroll motion at all: the page looks designed in a screenshot and dead in the browser.
+- Photos that are soft, blocky or over-compressed (under 1920px, quality under 80).
 - Dashboards: "Welcome back 👋", a row of four KPI cards with sparklines, a donut chart, a purple primary. (dribbble `26758172`, `25270785`)
+- Dashboards: the account menu in the top-right corner of the top bar, and fixed panes nobody can resize.
 
 ## The test
 If someone could guess the page's look from its category alone ("AI tool → dark + glow", "fintech → purple gradient", "coffee → cream + serif"), it is generic, even if every element is well made.

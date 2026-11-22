@@ -5,10 +5,14 @@ import path from 'node:path';
 import { execSync } from 'node:child_process';
 import { createRequire } from 'node:module';
 import { pathToFileURL } from 'node:url';
+import { probeMotion, filmstrip, motionTells } from './motion.mjs';
 
 const SLICE_HEIGHT = 1800;
 const MAX_HEIGHT = 16000;
 const SETTLE_MS = 1500;
+const FULL_HD = 1920;
+const MIN_JPEG_QUALITY = 80;
+const ICON_MAX_PX = 120;
 
 async function loadPlaywright() {
   try { return await import('playwright'); } catch {}
@@ -92,6 +96,29 @@ function scan() {
   return out;
 }
 
+// Photos must be full HD at the source: long edge >= 1920px, or 3x the rendered width for small images.
+async function imageQuality([fullHd, minQ, iconMax]) {
+  const out = [];
+  const visible = (el) => { const r = el.getBoundingClientRect(); return r.width > 0 && r.height > 0; };
+  const load = (src) => new Promise((res) => { const i = new Image(); i.onload = () => res([i.naturalWidth, i.naturalHeight]); i.onerror = () => res(null); i.src = src; });
+  const items = [...document.querySelectorAll('img')].filter(visible).map((i) => ({ src: i.currentSrc || i.src, w: i.getBoundingClientRect().width, nat: [i.naturalWidth, i.naturalHeight] }));
+  for (const el of document.querySelectorAll('body *')) {
+    const bg = getComputedStyle(el).backgroundImage;
+    const m = /url\(["']?([^"')]+)["']?\)/.exec(bg);
+    if (m && visible(el) && !m[1].startsWith('data:image/svg')) items.push({ src: m[1], w: el.getBoundingClientRect().width, nat: null });
+  }
+  for (const it of items) {
+    if (/\.svg(\?|$)/i.test(it.src) || it.src.startsWith('data:image/svg')) continue;
+    const nat = it.nat && it.nat[0] ? it.nat : await load(it.src);
+    if (!nat) continue;
+    const need = it.w <= iconMax ? it.w * 3 : fullHd;
+    if (Math.max(...nat) < need) out.push({ rule: 'low-res-image', detail: `${nat[0]}x${nat[1]} shown ${Math.round(it.w)}px wide: ${it.src.slice(0, 90)}` });
+    const q = /[?&]q=(\d+)/.exec(it.src);
+    if (q && +q[1] < minQ) out.push({ rule: 'low-image-quality', detail: `q=${q[1]}: ${it.src.slice(0, 90)}` });
+  }
+  return out;
+}
+
 const report = { url, shots: {}, tells: {} };
 try {
   const desk = await browser.newPage({ viewport: { width: 1440, height: 900 } });
@@ -99,7 +126,7 @@ try {
   await desk.screenshot({ path: path.join(outDir, 'desktop.jpg'), type: 'jpeg', quality: 85 });
   report.shots.desktop = 'desktop.jpg';
   report.pageHeight = h;
-  report.tells.desktop = await desk.evaluate(scan);
+  report.tells.desktop = [...await desk.evaluate(scan), ...await desk.evaluate(imageQuality, [FULL_HD, MIN_JPEG_QUALITY, ICON_MAX_PX])];
   const total = Math.min(h, MAX_HEIGHT);
   report.shots.slices = [];
   for (let top = 0, i = 1; top < total; top += SLICE_HEIGHT, i++) {
@@ -115,9 +142,19 @@ try {
   report.shots.mobile = 'mobile.jpg';
   report.shots.mobileFull = 'mobile-full.jpg';
   report.tells.mobile = (await mob.evaluate(scan)).filter((t) => ['horizontal-overflow', 'broken-images'].includes(t.rule)).map((t) => ({ ...t, rule: `mobile-${t.rule}` }));
+  await mob.close();
+  await desk.close();
+
+  const motion = await probeMotion(browser, url, { settleMs: SETTLE_MS });
+  await filmstrip(browser, motion.frames, path.join(outDir, 'filmstrip.jpg'));
+  report.shots.filmstrip = 'filmstrip.jpg';
+  const { frames, ...motionData } = motion;
+  report.motion = motionData;
+  report.tells.motion = motionTells(motion);
 } finally { await browser.close(); }
 
 await fs.writeFile(path.join(outDir, 'report.json'), JSON.stringify(report, null, 2));
-const all = [...report.tells.desktop, ...report.tells.mobile];
-console.log(`shots in ${outDir}: desktop.jpg, ${report.shots.slices.length} slices, mobile.jpg, mobile-full.jpg`);
+const all = [...report.tells.desktop, ...report.tells.mobile, ...report.tells.motion];
+console.log(`shots in ${outDir}: desktop.jpg, ${report.shots.slices.length} slices, mobile.jpg, mobile-full.jpg, filmstrip.jpg`);
+console.log(`motion: ${JSON.stringify(report.motion.counts)} scrubbed=${report.motion.scrubbed} libs=${JSON.stringify(report.motion.libraries)}`);
 console.log(all.length ? `tells (${all.length}):\n${all.map((t) => `- ${t.rule}: ${t.detail}`).join('\n')}` : 'tells: none');

@@ -5,7 +5,9 @@ description: Art direction for websites and landing pages so they look made by a
 
 # Web art direction
 
-Components decide whether a page works. Composition decides whether anyone remembers it. This skill handles the composition: concept, first screen, section rhythm, type, color, imagery and copy. Then a critic reviews the result until it ships.
+Components decide whether a page works. Composition and motion decide whether anyone remembers it. This skill handles both: concept, first screen, section choice and rhythm, scroll choreography, type, color, imagery and copy. Then a critic reviews the result until it ships.
+
+The bar: a visitor should feel something they did not expect. A page that looks different but scrolls like every other page still feels generic. If nothing on the page makes someone stop, scroll back and watch again, it is not done.
 
 ## Tools
 
@@ -15,6 +17,8 @@ Load these files only when their step comes up:
 - [references/moves.md](references/moves.md): composition moves with tier-A references
 - [references/page.md](references/page.md): rhythm, type, color, imagery, copy, mobile
 - [references/slop.md](references/slop.md): the generic look, with counter-examples
+- [references/sections.md](references/sections.md): section types beyond the AI default, by job, with references
+- [references/motion.md](references/motion.md): scroll choreography, the signature scene, techniques and stacks
 
 ## Process
 
@@ -24,32 +28,34 @@ Find out who the page is for, what they must believe, the one action, and which 
 ### 2. Memory
 Run `lessons.list()` and read every lesson. They come from past critiques and are binding unless the brief overrides one. Name the lessons that apply to this page.
 
-### 3. References
-In one `refs_run` call:
-- three tier-A references from the page's category,
-- two tier-A references picked at random (`Math.random`) from other categories. These are challengers against the category default,
-- two tier-C references from the category, as what to avoid.
+### 3. Research (take your time)
+Research is where ideas come from; a longer study beats a faster build. Don't start building until you have found at least one idea you would not have had without it.
+- **First screens:** three tier-A references from the page's category, two tier-A picked at random (`Math.random`) from other categories as challengers, and two tier-C from the category as what to avoid.
+- **Whole pages:** scroll the `full` view of at least four tier-A references, two of them from other categories (`refs.image(id, { view: 'full', top, height: 6000, width: 400 })`, then page down). Note every section that isn't in the AI-default list in sections.md.
+- **Motion:** read motion.md. Shoot one or two live sites whose scroll you want to learn from (`node scripts/shoot.mjs <url> <dir>`) and look at their `filmstrip.jpg`.
+- Measure the most relevant reference live with `refs.measure(url)`. If the user names sites they like, `refs.capture()` them first and tag them.
 
-Look at their first screens. Measure the most relevant one live with `refs.measure(url)`. For each, write one line on what you take from it: a decision, not a layout. If the user names sites they like, `refs.capture()` them first and tag them.
+Write one line per reference on what you take from it: a decision, not a layout. End with **"New to me:"**, the ideas this research gave you that you would not have reached alone, and use at least one.
 
 ### 4. Direction
 Read moves.md. Write down:
 - **The rut:** the page this category always ships, and the anti-slop version of it (e.g. cream background + serif + terracotta). Both are off-limits unless the brief pins them.
 - **Thesis:** one sentence naming the one idea this page owns.
 - **First screen:** one first-screen move and exactly what sits where, at what scale.
-- **Sections:** four to six section moves in order, with the rhythm (dense or quiet, container, scale) of each.
+- **Sections:** read sections.md. List the jobs the page must do, then pick one section per job, in order, with the container and rhythm of each. At least half come from outside the AI-default list; no two neighbors share a container; at most one card grid.
+- **Motion:** read motion.md. The signature scene (which section, how many vh pinned, what the scroll performs and why that is this product's verb), the behavior of every other section (no two neighbors alike), the texture, and the phone version.
 - **Type, color, imagery:** one type move, one color strategy with hex values, and the imagery plan with real sources.
 
 Put this contract in an HTML comment at the top of the page. If any line reads like a mood instead of a decision, it isn't decided yet.
 
 ### 5. Build
-Read page.md and slop.md, then build the contract with full commitment: real fonts, real images (check that each URL loads), real copy. Use the `ui-libraries-no-ai-look` skill for interactive components. Fix the hero first, then everything below it.
+Read page.md and slop.md, then build the contract with full commitment: real fonts, real copy, and real images at full HD or better (see page.md, Imagery). Use the `ui-libraries-no-ai-look` skill for interactive components. Fix the hero first, then the signature scene, then everything else.
 
 ### 6. Shoot
 ```bash
 node <this-skill-dir>/scripts/shoot.mjs <page.html-or-url> <out-dir>
 ```
-This writes `desktop.jpg`, desktop slices, `mobile.jpg`, `mobile-full.jpg` and `report.json` with mechanical tells (eyebrows, gradient text, purple gradients, equal card rows, stock phrases, timid h1, broken images, overflow). Fix every tell the brief doesn't justify before the critique.
+This writes `desktop.jpg`, desktop slices, `mobile.jpg`, `mobile-full.jpg`, `filmstrip.jpg` (frames at even scroll steps from a fresh load, so scroll motion shows in stills) and `report.json`. The report has mechanical tells (eyebrows, gradient text, purple gradients, equal card rows, stock phrases, timid h1, low-resolution or over-compressed images, broken images, overflow) and a motion probe: counts of pinned, horizontal, scaled, rotated, clipped and scrubbed elements, with `no-scroll-motion`, `fade-up-only` and `no-signature-scene` tells. Fix every tell the brief doesn't justify before the critique. Look at the filmstrip yourself: if the signature scene doesn't read in it, it won't read for the visitor either.
 
 ### 7. Critique loop
 Spawn the critic with a fresh context, never a fork of this conversation:
@@ -60,7 +66,7 @@ Send it these inputs:
 - the brief and the user's answers,
 - the contract,
 - the page path,
-- the shot folder and `report.json`,
+- the shot folder, `filmstrip.jpg` and `report.json`,
 - the reference ids from step 3.
 
 It returns `rebuild`, `fix` or `ship`, with ordered fixes, and records lessons itself through `lessons.add`.
@@ -79,4 +85,9 @@ Tell the user:
 - which placeholders need real content.
 
 ## Dashboards and app UI
-Usability beats expression here. Use moves only for the shell's identity (type, color, one signature detail). Let `ui-libraries-no-ai-look` drive the components, and still run steps 2, 6 and 7.
+Usability beats expression here. Use moves only for the shell's identity (type, color, one signature detail). Let `ui-libraries-no-ai-look` drive the components, and still run steps 2, 3 (references from product UIs), 6 and 7.
+
+Shell conventions people expect:
+- **Account at the bottom left.** The user's avatar, name and workspace sit at the foot of the sidebar and open the account menu (profile, billing, theme, sign out) upward. The top bar keeps search, the command menu and notifications.
+- **Resizable splits.** Every multi-pane layout (sidebar | main | detail or assistant panel) has drag handles so people size panes themselves: visible grip on hover, keyboard resizing (arrow keys on the focused handle), min and max sizes, double-click to reset, collapse to an edge, and sizes saved between visits. Use `react-resizable-panels` in React; in plain HTML, build the same behaviors.
+- Motion here is for feedback and continuity (numbers animating, panels sliding, list items settling), not scroll scenes.

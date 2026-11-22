@@ -5,6 +5,7 @@
 - Change the container between sections: full-bleed, narrow text column, wide grid, offset. Never the same centered 1200px box all the way down.
 - More space above a heading than below it. One spacing scale for the whole page.
 - Six to nine sections is plenty for a marketing page. Cut any section that restates a claim already made.
+- Pick section types from sections.md by the job each must do. The default stack (logos, three feature cards, 1-2-3 steps, three quote cards, three price cards, FAQ accordion, CTA band) is the generic look even when each part is well made.
 - End on a real close: one statement and one action with space around it.
 
 ## Type
@@ -22,6 +23,7 @@
 
 ## Imagery
 - Real photographs of real scenes or one authored object. Verify every image URL loads.
+- **Full HD or better, always.** Every photograph is at least 1920px on its long edge at the source; full-bleed images 2400px or more. Small images (avatars, thumbnails under 120px) at least 3x their displayed width. JPEG/WebP quality 80 or higher. For Unsplash: `?w=2400&q=85&auto=format&fit=crop`, but the `w` parameter never upscales: a photo whose original is 1440px wide comes back at 1440px. Check the delivered size (`naturalWidth`) and pick another photo if the original is too small. Never ship a soft, blocky or upscaled-looking image; if no sharp source exists, choose another image or author the visual. `shoot.mjs` flags `low-res-image` and `low-image-quality`.
 - When there is no real material, author it: SVG illustration in one consistent stroke, a typeset specimen, a real document rendered in HTML. Label demonstration data as sample data.
 - One decisive image beats five average ones.
 
@@ -31,8 +33,7 @@
 - No invented customers, logos, reviews, prices or stats. Use clearly marked placeholders and list them for the user.
 
 ## Motion
-- One authored moment (the hero, or one scroll scene), not the same fade-up on every block.
-- Content is visible by default; motion enhances. Respect `prefers-reduced-motion`.
+See motion.md. In short: one signature scroll scene that performs the product's verb, a different behavior for every section, small continuous texture, a separate phone choreography, and a reduced-motion version. Never the same fade-up on every block, and never a static page. Content is visible without JS.
 
 ## Mobile
 - Re-compose, don't shrink: the first screen on 390px must still carry the one idea.
